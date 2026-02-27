@@ -5,25 +5,25 @@ package amneziawg.v1;
 option go_package = "github.com/thebeyond-net/node-agent/pkg/amneziawg/v1;amneziawgv1";
 
 service AmneziaWGService {
-    rpc CreateClient(CreateClientRequest) returns (CreateClientResponse);
-    rpc DeleteClient(DeleteClientRequest) returns (DeleteClientResponse);
+    rpc CreatePeer(CreatePeerRequest) returns (CreatePeerResponse);
+    rpc DeletePeer(DeletePeerRequest) returns (DeletePeerResponse);
 }
 
-message CreateClientRequest {
+message CreatePeerRequest {
 }
 
-message CreateClientResponse {
+message CreatePeerResponse {
     bool   success = 1;
     string error   = 2;
     string config  = 3;
     string pubkey  = 4;
 }
 
-message DeleteClientRequest {
+message DeletePeerRequest {
     string pubkey = 1;
 }
 
-message DeleteClientResponse {
+message DeletePeerResponse {
     bool   success = 1;
     string error   = 2;
 }

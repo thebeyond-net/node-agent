@@ -56,15 +56,18 @@ func (q *Queries) Release(ctx context.Context, ip string) error {
 	return err
 }
 
-const releaseByPublicKey = `-- name: ReleaseByPublicKey :exec
+const releaseByPublicKey = `-- name: ReleaseByPublicKey :one
 UPDATE ip_allocations 
 SET released_at = CURRENT_TIMESTAMP 
 WHERE pubkey = ? AND released_at IS NULL
+RETURNING ip
 `
 
-func (q *Queries) ReleaseByPublicKey(ctx context.Context, pubkey string) error {
-	_, err := q.db.ExecContext(ctx, releaseByPublicKey, pubkey)
-	return err
+func (q *Queries) ReleaseByPublicKey(ctx context.Context, pubkey string) (string, error) {
+	row := q.db.QueryRowContext(ctx, releaseByPublicKey, pubkey)
+	var ip string
+	err := row.Scan(&ip)
+	return ip, err
 }
 
 const releaseIP = `-- name: ReleaseIP :exec

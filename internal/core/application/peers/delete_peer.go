@@ -6,9 +6,14 @@ import (
 )
 
 func (uc *Interactor) DeletePeer(ctx context.Context, pubKey string) error {
-	if err := uc.vpn.RemovePeer(pubKey); err != nil {
+	ip, err := uc.ipRepo.ReleaseByPublicKey(ctx, pubKey)
+	if err != nil {
+		return fmt.Errorf("release ip: %w", err)
+	}
+
+	if err := uc.vpn.RemovePeer(pubKey, ip.String()); err != nil {
 		return fmt.Errorf("remove peer: %w", err)
 	}
-	_ = uc.ipRepo.ReleaseByPublicKey(ctx, pubKey)
+
 	return nil
 }

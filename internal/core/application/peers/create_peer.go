@@ -8,7 +8,7 @@ import (
 	"github.com/thebeyond-net/node-agent/pkg/keypair"
 )
 
-func (uc *Interactor) CreatePeer(ctx context.Context) (string, string, error) {
+func (uc *Interactor) CreatePeer(ctx context.Context, bandwidth int) (string, string, error) {
 	serverConfig, err := uc.vpn.GetServerConfig()
 	if err != nil {
 		return "", "", fmt.Errorf("get server config: %w", err)
@@ -34,9 +34,16 @@ func (uc *Interactor) CreatePeer(ctx context.Context) (string, string, error) {
 		return "", "", fmt.Errorf("register peer: %w", err)
 	}
 
+	if bandwidth > 0 {
+		if err = uc.vpn.SetPeerBandwidth(ip.String(), bandwidth); err != nil {
+			_ = uc.vpn.RemovePeer(keypair.Public, ip.String())
+			return "", "", fmt.Errorf("set bandwidth limit: %w", err)
+		}
+	}
+
 	clientConfig, err := uc.vpn.BuildClientConfig(keypair.Private, ip.String(), serverConfig)
 	if err != nil {
-		_ = uc.vpn.RemovePeer(keypair.Public)
+		_ = uc.vpn.RemovePeer(keypair.Public, ip.String())
 		return "", "", fmt.Errorf("build client config: %w", err)
 	}
 
